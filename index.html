@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>入退場タイマー</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .user-timer {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            width: 300px;
+            position: relative;
+        }
+
+        .nickname {
+            font-weight: bold;
+        }
+
+        .timer {
+            font-size: 2em;
+            margin-top: 10px;
+        }
+
+        #inputSection {
+            margin-bottom: 30px;
+        }
+
+        #usersSection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .delete-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        /* レスポンシブデザイン */
+        @media only screen and (max-width: 600px) {
+            body {
+                padding-top: 20px;
+            }
+
+            .user-timer {
+                width: 90%;
+                margin: 10px 0;
+            }
+
+            .timer {
+                font-size: 1.5em;
+            }
+
+            .delete-button {
+                padding: 5px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>入退場タイマー</h1>
+    <div id="inputSection">
+        <label for="nickname">ニックネームを入力してください: </label>
+        <input type="text" id="nickname">
+        <button onclick="addUser()">追加</button>
+    </div>
+    <div id="usersSection">
+        <!-- ユーザーのタイマーがここに追加されます -->
+    </div>
+    <script>
+        function addUser() {
+            var nickname = document.getElementById('nickname').value;
+            if (nickname === "") {
+                alert("ニックネームを入力してください！");
+                return;
+            }
+
+            // ユーザータイマーセクションを作成
+            var userSection = document.createElement('div');
+            userSection.className = 'user-timer';
+            userSection.id = 'user-' + nickname;
+            userSection.innerHTML = `
+                <p>ようこそ、<span class="nickname">${nickname}</span>さん！</p>
+                <div class="timer" id="timer-${nickname}">20:00</div>
+                <button class="delete-button" onclick="removeUser('${nickname}')">削除</button>
+            `;
+            document.getElementById('usersSection').appendChild(userSection);
+
+            startTimer(nickname);
+        }
+
+        function startTimer(nickname) {
+            var totalTime = 20 * 60;
+            var timerDisplay = document.getElementById('timer-' + nickname);
+            var timer = setInterval(function() {
+                var minutes = Math.floor(totalTime / 60);
+                var seconds = totalTime % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                timerDisplay.textContent = minutes + ":" + seconds;
+
+                if (totalTime <= 0) {
+                    clearInterval(timer);
+                    timerDisplay.textContent = `${nickname}さん、さようなら！`;
+                }
+                totalTime -= 1;
+            }, 1000);
+
+            // タイマーをオブジェクトに保存
+            timerDisplay.dataset.timerId = timer;
+        }
+
+        function removeUser(nickname) {
+            // タイマーを停止
+            var timerDisplay = document.getElementById('timer-' + nickname);
+            clearInterval(timerDisplay.dataset.timerId);
+
+            // ユーザーセクションを削除
+            var userSection = document.getElementById('user-' + nickname);
+            userSection.remove();
+        }
+    </script>
+</body>
+</html>
